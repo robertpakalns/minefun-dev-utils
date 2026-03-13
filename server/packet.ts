@@ -1,36 +1,42 @@
+// Fixed header that instructs the server to execute a script
+// These bytes are always present at the beginning of every packet
 const HEADER = [13, 2, 146, 205, 7, 8];
 
 /**
- * Encode an integer as a MineFun-style varint
- * For single-byte lengths < 128, adds offset 160
+ * Encodes a number using the protocol's variable-length integer format.
+ *
+ * Encoding rules:
+ * * 0–34   → one byte: 160 + `value`
+ * * 35–255 → two bytes:  [217, `value`]
+ * * 256+   → three bytes: [218, `highByte`, `lowByte`]
+ *
+ * This is used to encode the payload length before the actual payload bytes.
  */
-function encodeVarint(value: number): number[] {
-  const bytes: number[] = [];
-
-  if (value < 128) {
-    // small packet: add 160 offset
-    bytes.push(160 + value);
+const encodeVarint = (value: number): number[] => {
+  if (value < 35) {
+    return [160 + value];
+  } else if (value <= 255) {
+    return [217, value];
   } else {
-    // multi-byte varint (standard base-128)
-    do {
-      let byte = value & 0x7f; // lower 7 bits
-      value >>>= 7;
-      if (value !== 0) byte |= 0x80; // continuation
-      bytes.push(byte);
-    } while (value !== 0);
+    const high = (value >> 8) & 0xff;
+    const low = value & 0xff;
+    return [218, high, low];
   }
-
-  return bytes;
-}
+};
 
 /**
- * Prepare MineFun packet
- * @param payload string to send
- * @returns Uint8Array representing the packet
+ * Builds a packet ready to be sent to the server.
+ *
+ * Packet structure:
+ * `[HEADER][LENGTH][PAYLOAD]`
+ *
+ * * `HEADER` — fixed command bytes telling the server to execute a script
+ * * `LENGTH` — payload length encoded using the protocol's varint format
+ * * `PAYLOAD` — UTF-8 encoded script text
  */
 export const preparePacket = (payload: string): Uint8Array => {
   const encoder = new TextEncoder();
-  const payloadBytes = encoder.encode(payload); // convert string to bytes
+  const payloadBytes = encoder.encode(payload);
 
   const lengthBytes = encodeVarint(payloadBytes.length);
 
@@ -38,6 +44,7 @@ export const preparePacket = (payload: string): Uint8Array => {
   const packet = new Uint8Array(
     HEADER.length + lengthBytes.length + payloadBytes.length,
   );
+
   packet.set(HEADER, 0);
   packet.set(lengthBytes, HEADER.length);
   packet.set(payloadBytes, HEADER.length + lengthBytes.length);

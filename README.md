@@ -5,7 +5,7 @@ This utility improves developer experience (DX) by enabling hot module replaceme
 ## Usage
 * Tampermonkey Script
   * Install [Tampermonkey](https://www.tampermonkey.net) in your browser
-  * Copy the userscript `minefun-relay.user.js` into Tampermonkey
+  * Copy the userscript `assets/minefun-relay.user.js` into Tampermonkey
   * Ensure the userscript is enabled
 
 * Local Server
@@ -22,4 +22,3 @@ bun run dev
 
 ## Limitations
 * Requires the Bun JavaScript runtime.
-* Supports only small payloads (~70 characters of code). Larger payloads will fail.
