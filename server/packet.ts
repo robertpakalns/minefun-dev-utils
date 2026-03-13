@@ -6,14 +6,14 @@ const HEADER = [13, 2, 146, 205, 7, 8];
  * Encodes a number using the protocol's variable-length integer format.
  *
  * Encoding rules:
- * * 0–34   → one byte: 160 + `value`
- * * 35–255 → two bytes:  [217, `value`]
+ * * 0–32   → one byte: 160 + `value`
+ * * 33–255 → two bytes:  [217, `value`]
  * * 256+   → three bytes: [218, `highByte`, `lowByte`]
  *
  * This is used to encode the payload length before the actual payload bytes.
  */
 const encodeVarint = (value: number): number[] => {
-  if (value < 35) {
+  if (value < 32) {
     return [160 + value];
   } else if (value <= 255) {
     return [217, value];

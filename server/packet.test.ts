@@ -11,9 +11,8 @@ const fill = (num: number): Uint8Array<ArrayBuffer> => {
 };
 
 const TESTS: Tests[] = [
-  // Empty string
   {
-    payload: "",
+    payload: "", // Empty string
     expected: new Uint8Array([13, 2, 146, 205, 7, 8, 160]),
   },
   {
@@ -42,8 +41,12 @@ const TESTS: Tests[] = [
     ]),
   },
   {
+    payload: ";".repeat(32), // 32 ";"
+    expected: new Uint8Array([13, 2, 146, 205, 7, 8, 217, 32, ...fill(32)]),
+  },
+  {
     payload: ";".repeat(34), // 34 ";"
-    expected: new Uint8Array([13, 2, 146, 205, 7, 8, 194, ...fill(34)]),
+    expected: new Uint8Array([13, 2, 146, 205, 7, 8, 217, 34, ...fill(34)]),
   },
   {
     payload: ";".repeat(35), // 35 ";"
@@ -61,8 +64,9 @@ const TESTS: Tests[] = [
     payload: ";".repeat(68), // 68 ";"
     expected: new Uint8Array([13, 2, 146, 205, 7, 8, 217, 68, ...fill(68)]),
   },
-  // Very long text
+
   {
+    // Very long arbitrary text
     payload:
       'api.log("Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus.")',
     expected: new Uint8Array([
@@ -93,6 +97,22 @@ const TESTS: Tests[] = [
   {
     payload: ";".repeat(260), // 260 ";"
     expected: new Uint8Array([13, 2, 146, 205, 7, 8, 218, 1, 4, ...fill(260)]),
+  },
+  {
+    payload: 'api.chat.sendMessage(1, "hello")',
+    expected: new Uint8Array([
+      13, 2, 146, 205, 7, 8, 217, 32, 97, 112, 105, 46, 99, 104, 97, 116, 46,
+      115, 101, 110, 100, 77, 101, 115, 115, 97, 103, 101, 40, 49, 44, 32, 34,
+      104, 101, 108, 108, 111, 34, 41,
+    ]),
+  },
+  {
+    payload: 'api.chat.sendMessage(1, "")',
+    expected: new Uint8Array([
+      13, 2, 146, 205, 7, 8, 187, 97, 112, 105, 46, 99, 104, 97, 116, 46, 115,
+      101, 110, 100, 77, 101, 115, 115, 97, 103, 101, 40, 49, 44, 32, 34, 34,
+      41,
+    ]),
   },
 ];
 
