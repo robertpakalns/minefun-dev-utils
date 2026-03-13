@@ -1,5 +1,8 @@
 {
   "name": "minefun-dev-utils",
+  "scripts": {
+    "dev": "bun server/main.ts"
+  },
   "devDependencies": {
     "@types/bun": "^1.3.10"
   }
