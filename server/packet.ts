@@ -24,6 +24,17 @@ const encodeVarint = (value: number): number[] => {
   }
 };
 
+// MineFun.io does not send raw control characters in the script payload.
+// Instead, it serializes them as escaped text sequences exactly like
+// they appear in the command block (e.g., "\n", "\r", "\t", "\0").
+const escapePayload = (str: string): string =>
+  str
+    .replace(/\\/g, "\\\\")
+    .replace(/\0/g, "\\0")
+    .replace(/\n/g, "\\n")
+    .replace(/\r/g, "\\r")
+    .replace(/\t/g, "\\t");
+
 /**
  * Builds a packet ready to be sent to the server.
  *
@@ -36,7 +47,9 @@ const encodeVarint = (value: number): number[] => {
  */
 export const preparePacket = (payload: string): Uint8Array => {
   const encoder = new TextEncoder();
-  const payloadBytes = encoder.encode(payload);
+
+  const escaped = escapePayload(payload);
+  const payloadBytes = encoder.encode(escaped);
 
   const lengthBytes = encodeVarint(payloadBytes.length);
 
